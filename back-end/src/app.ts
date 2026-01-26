@@ -1,16 +1,33 @@
 import express from 'express'
 
-import herosRouter from './routers/heroes-router'
+import { PrismaClient } from '@prisma/client'
 
-const app = express()
-const port = 3001
+import createHeroesRouter from './routers/heroes.router'
 
+
+const app = express();
+const port = 3001;
+
+
+// Dependency injection
+
+const prisma = new PrismaClient();
+const heroesRouter = createHeroesRouter(prisma);
+
+
+// --- Paths ---
+
+// Index path
 app.get('/', (req, res) => {
   res.send('Hello heroes app!')
 })
 
-app.use('/heroes', herosRouter);
+// The heroes router
+app.use('/heroes', heroesRouter);
 
+
+
+// --- Running the server ---
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
