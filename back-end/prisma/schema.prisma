@@ -19,6 +19,8 @@ model Hero {
   nickname String
   realName String
   originDescription String
+  
+  images String[]
 
   superpowers Superpower[]
 }
