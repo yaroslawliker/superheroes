@@ -2,6 +2,14 @@ import express from 'express'
 
 import { PrismaClient } from '@prisma/client';
 import { logRequest } from '../logging/request-logger';
+import { validate } from '../dto/validate-schema';
+import { createHeroSchema, CreateHeroDto } from '../dto/create-hero.dto';
+
+
+const INTERNAL_ERROR = {
+    code: "no_such_id",
+    message: "No hero with such id."
+}
 
 
 export default function createHeroesRouter(prisma: PrismaClient) {
@@ -40,18 +48,45 @@ export default function createHeroesRouter(prisma: PrismaClient) {
             .catch((e)=>{
                 res.statusCode = 500;
                 res.send({
-                    error: {
-                        code: "internal",
-                        message: "Internal server error"
-                    }
+                    error: INTERNAL_ERROR
                 })
             })        
     })
 
 
+    // Lets to add new superheroes
+    router.post('/', validate(createHeroSchema), async (req, res) => {
+        try {
+            const body = req.body;
 
-    router.post('/', (req, res) => {
-        res.send("Hero!");
+            const superpowers = body.superpowers.map(
+                (s: string) => {return {name: s}}
+            );
+
+            console.log(superpowers);
+
+            const newHero = await prisma.hero.create({
+                data: {
+                    nickname: body.nickname,
+                    realName: body.realName,
+                    originDescription: body.originDescription,
+                    superpowers: {
+                        createMany: {
+                            data: superpowers
+                        } 
+                    }
+                }
+            })
+
+            res.status(201).json(newHero);
+        }
+        catch (error) {
+            res.status(500).json({
+                error: INTERNAL_ERROR
+            })
+            console.error(error);
+        }
+        
     })
 
     router.put('/', (req, res) => {

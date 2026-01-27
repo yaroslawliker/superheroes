@@ -6,10 +6,12 @@ import createHeroesRouter from './routers/heroes.router'
 
 
 const app = express();
-const port = 3001;
+const port = 3000;
 
 
 // Dependency injection
+
+app.use(express.json())
 
 const prisma = new PrismaClient();
 const heroesRouter = createHeroesRouter(prisma);
