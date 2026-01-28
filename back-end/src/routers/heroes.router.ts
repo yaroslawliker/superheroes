@@ -33,28 +33,14 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
         const hero = prisma.hero.findUnique({
             where: {
                 id: id
-            },
-            include: {
-                superpowers: true
             }
         })
 
         hero
             .then((h) => {
                 if (h) {
-
-                    const superpowers = h.superpowers.map( s => s.name)
-
-                    const hero = {
-                        nickName: h.nickname,
-                        realName: h.realName,
-                        originDescription: h.originDescription,
-                        superpowers: superpowers,
-                        images: h.images                      
-                    }
-
                     res.statusCode = 200;
-                    res.send(hero);
+                    res.send(h);
                 }
                 else {
                     res.statusCode = 400;
@@ -141,8 +127,6 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
 
             const savedFileNames = await Promise.all(uploadPromises);
 
-            // Parsing superpowers
-            const superpowersData = validHeroData.superpowers.map((s: string) => ({ name: s }));
 
             // Adding the new hero to the database
             const newHero = await prisma.hero.create({
@@ -151,15 +135,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
                     realName: validHeroData.realName,
                     originDescription: validHeroData.originDescription,
                     images: savedFileNames,
-
-                    superpowers: {
-                        createMany: {
-                            data: superpowersData
-                        } 
-                    }
-                },
-                include: {
-                    superpowers: true
+                    superpowers: validHeroData.superpowers
                 }
             });
 

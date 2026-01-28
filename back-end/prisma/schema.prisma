@@ -21,14 +21,6 @@ model Hero {
   originDescription String
   
   images String[]
-
-  superpowers Superpower[]
+  superpowers String[]
 }
 
-model Superpower {
-  id Int @id @default(autoincrement())
-  name String
-
-  hero Hero @relation(fields: [heroId], references: [id], onDelete: Cascade)
-  heroId Int
-}
