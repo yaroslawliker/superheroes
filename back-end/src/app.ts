@@ -12,7 +12,7 @@ const port = 3000;
 
 // Dependency injection and components set up
 
-app.use(express.json())
+app.use(express.json());
 
 initMinio();
 

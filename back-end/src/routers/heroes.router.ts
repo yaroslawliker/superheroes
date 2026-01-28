@@ -178,9 +178,52 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
     });
 
 
+    router.delete('/', async (req, res) => {
+        const heroId = Number(req.body.id);
 
-    router.delete('/', (req, res) => {
-        res.send("Hero!");
+        if (!heroId) {
+            res.status(400).json({ error: {
+                code: "missing_field",
+                message: "No id was provided"
+            }})
+        }
+
+        const hero = await prisma.hero.findUnique({
+            where: {
+                id: heroId
+            },
+            select: {
+                images: true
+            }
+        });
+
+        if (!hero) {
+            return res.status(404).json({ error: {
+                code: "not_found",
+                message: "No such hero to delete"
+            }});
+        }
+
+        try {
+
+            const result = await prisma.hero.delete({
+                where: {
+                    id: heroId
+                }
+            })
+
+            if (hero.images && hero.images.length > 0) {
+                minio.removeObjects(BUCKET_NAME, hero.images)
+                console.debug(`${hero.images.length} images were removed.`)
+            }
+
+            res.status(200).json({
+                status: "deleted"
+            })
+
+        } catch (error) {
+            res.status(500).json({ error: INTERNAL_ERROR })
+        }
     });
 
     return router;

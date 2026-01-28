@@ -29,6 +29,6 @@ model Superpower {
   id Int @id @default(autoincrement())
   name String
 
-  hero Hero @relation(fields: [heroId], references: [id])
+  hero Hero @relation(fields: [heroId], references: [id], onDelete: Cascade)
   heroId Int
 }
