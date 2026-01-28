@@ -33,14 +33,28 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
         const hero = prisma.hero.findUnique({
             where: {
                 id: id
+            },
+            include: {
+                superpowers: true
             }
         })
 
         hero
             .then((h) => {
                 if (h) {
+
+                    const superpowers = h.superpowers.map( s => s.name)
+
+                    const hero = {
+                        nickName: h.nickname,
+                        realName: h.realName,
+                        originDescription: h.originDescription,
+                        superpowers: superpowers,
+                        images: h.images                      
+                    }
+
                     res.statusCode = 200;
-                    res.send(h);
+                    res.send(hero);
                 }
                 else {
                     res.statusCode = 400;
