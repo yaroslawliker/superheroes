@@ -65,41 +65,44 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
 
     
-    // Returns the full info on a specific superhero
-    router.get('/:heroId', (req, res) => {
-        const id = Number(req.params.heroId);
-        const hero = prisma.hero.findUnique({
-            where: {
-                id: id
-            }
-        })
+    /** 
+     * Returns the full info on a specific superhero
+    */
+    router.get('/:heroId', async (req, res) => {
 
-        hero
-            .then((h) => {
-                if (h) {
-                    res.statusCode = 200;
-                    res.send(h);
-                }
-                else {
-                    res.statusCode = 400;
-                    res.send({
-                        error: {
-                            code: "no_such_id",
-                            message: "No hero with such id."
-                        }
-                    })
+        try {
+            const id = Number(req.params.heroId);
+            const hero = await prisma.hero.findUnique({
+                where: {
+                    id: id
                 }
             })
-            .catch((e)=>{
-                res.statusCode = 500;
+
+            if (hero) {
+                res.statusCode = 200;
+                res.send(hero);
+            }
+            else {
+                res.statusCode = 404;
                 res.send({
-                    error: INTERNAL_ERROR
+                    error: {
+                        code: "no_such_id",
+                        message: "No hero with such id."
+                    }
                 })
-            })        
+            }
+            
+        } catch (error) {
+            res.status(500).json({
+                error: INTERNAL_ERROR
+            })
+        }      
     });
 
 
-    // Lets upload a hero with images
+    /** 
+     * Lets upload a superhero with images
+    */
     router.post(
         '/', 
         upload.array('images', 10), 
@@ -171,7 +174,10 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
     });
 
 
-
+    /**
+     * Lets update the superhero.
+     * May recieve new images to upload and 'deletedImages' list for images to be deleted.
+     */
     router.put('/:heroId', upload.array('images', 10), async (req, res) => {
         const heroId = Number(req.params.heroId);
 
