@@ -1,0 +1,12 @@
+
+.app-layout {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    background-color: var(--secondary-bg);
+}

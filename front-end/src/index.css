@@ -6,6 +6,12 @@
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  --palette-purple: linear-gradient(135deg, #3B185F 0%, #C0259B 100%);
+  --palette-ligth-gray: #F0F2F5;
+
+  --primary-bg: var(--palette-purple);
+  --secondary-bg: var(--palette-ligth-gray);
 }
 
 *, *::before, *::after {
