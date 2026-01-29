@@ -10,13 +10,11 @@ import { createHeroSchema } from '../dto/create-hero.dto';
 import { updateHeroSchema } from '../dto/update-hero.dto';
 import { MinioService } from '../services/minio.service'
 import { catalogSchema } from '../dto/catalog.dto';
+import { ERRORS } from './http-errors';
 
 
 
-const INTERNAL_ERROR = {
-    code: "no_such_id",
-    message: "No hero with such id."
-}
+
 
 export default function createHeroesRouter(prisma: PrismaClient, minio: MinioService) {
     
@@ -59,7 +57,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
             })
 
         } catch (error) {
-            res.status(500).json({ error: INTERNAL_ERROR })
+            res.status(500).json({ error: ERRORS.INTERNAL_ERROR })
         }
     })
 
@@ -79,22 +77,18 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
             })
 
             if (hero) {
-                res.statusCode = 200;
-                res.send(hero);
+                res.json(hero);
             }
             else {
                 res.statusCode = 404;
                 res.send({
-                    error: {
-                        code: "no_such_id",
-                        message: "No hero with such id."
-                    }
+                    error: ERRORS.NO_SUCH_ID
                 })
             }
             
         } catch (error) {
             res.status(500).json({
-                error: INTERNAL_ERROR
+                error: ERRORS.INTERNAL_ERROR
             })
         }      
     });
@@ -112,20 +106,14 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
             // Parsing json
             if (!req.body.data) {
-                return res.status(400).json({ error: {
-                    code: "missing_field",
-                    message: "Missing 'data' field"
-                }});
+                return res.status(400).json({ error: ERRORS.missingField("data") });
             }
 
             let parsedBody;
             try {
                 parsedBody = JSON.parse(req.body.data);
             } catch (e) {
-                return res.status(400).json({ error: { 
-                    code: "invalid_json",
-                    message: "Invalid JSON format in 'data'",
-                }});
+                return res.status(400).json({ error: ERRORS.INVALID_JSON });
             }
 
             // Data validation
@@ -133,10 +121,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
             if (!validationResult.success) {
                 return res.status(400).json({ 
-                    error: {
-                        message: "Validation Error",
-                        code: "validation_error"
-                    },
+                    error: ERRORS.VALIDATION_ERROR,
                     details: validationResult.error.issues
                 });
             }
@@ -147,7 +132,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
             const files = req.files as Express.Multer.File[];
             if (!files || files.length === 0) {
                 return res.status(400).json({ 
-                    error: { code: "no_images", message: "At least one image required" }
+                    error: ERRORS.NO_IMAGES
                 });
             }
 
@@ -169,7 +154,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
         } catch (error) {
             console.error("Error while creating hero:", error);
-            res.status(500).json({ error: INTERNAL_ERROR });
+            res.status(500).json({ error: ERRORS.INTERNAL_ERROR });
         }
     });
 
@@ -184,20 +169,14 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
         try {
             
             if (!req.body.data) return res.status(400).json(
-                { error: {
-                    code: "missing_field",
-                    message: "Missing 'data' field"
-                }}
+                { error: ERRORS.missingField("data") }
             );
             
             let payload;
             try {
                 payload = JSON.parse(req.body.data);
             } catch (e) {
-                return res.status(400).json({ error:{
-                    code: "invalid_json",
-                    message: "Invalid JSON" 
-                }});
+                return res.status(400).json({ error: ERRORS.INVALID_JSON });
             }
 
             const validation = updateHeroSchema.safeParse(payload);
@@ -212,7 +191,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
                 select: { images: true }
             });
 
-            if (!currentHero) return res.status(404).json({ error: "Hero not found" });
+            if (!currentHero) return res.status(404).json({ error: ERRORS.NO_SUCH_ID });
 
 
             const files = req.files as Express.Multer.File[];
@@ -249,7 +228,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ error: ERRORS.INTERNAL_ERROR });
         }
     });
 
@@ -258,10 +237,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
         const heroId = Number(req.body.id);
 
         if (!heroId) {
-            res.status(400).json({ error: {
-                code: "missing_field",
-                message: "No id was provided"
-            }})
+            res.status(400).json({ error: ERRORS.missingField("id")})
         }
 
         const hero = await prisma.hero.findUnique({
@@ -274,10 +250,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
         });
 
         if (!hero) {
-            return res.status(404).json({ error: {
-                code: "not_found",
-                message: "No such hero to delete"
-            }});
+            return res.status(404).json({ error: ERRORS.NO_SUCH_ID});
         }
 
         try {
@@ -298,7 +271,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
             })
 
         } catch (error) {
-            res.status(500).json({ error: INTERNAL_ERROR })
+            res.status(500).json({ error: ERRORS.INTERNAL_ERROR })
         }
     });
 
