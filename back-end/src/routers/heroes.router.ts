@@ -9,6 +9,7 @@ import { logRequest } from '../logging/request-logger';
 import { createHeroSchema } from '../dto/create-hero.dto';
 import { updateHeroSchema } from '../dto/update-hero.dto';
 import { MinioService } from '../services/minio.service'
+import { catalogSchema } from '../dto/catalog.dto';
 
 
 
@@ -26,6 +27,41 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
 
     // --- End-points
+
+
+
+    /**
+     * Searches for superheroes with the given pagination.
+     * 'search' query param is not used for now
+     */
+    router.get("/catalog", async (req, res) => {
+        try{
+            const { page, limit } = catalogSchema.parse(req.query);
+            const skip = (page-1)*limit;
+
+            const [heroes, totalCount] = await Promise.all([
+                prisma.hero.findMany({
+                    skip: skip,
+                    take: limit,
+                    orderBy: { id: 'desc' },
+                    select: {
+                        id: true,
+                        nickname: true,
+                        images: true
+                    }
+                }),
+                prisma.hero.count()
+            ]);
+
+            res.json({
+                data: heroes,
+                totalCount: totalCount
+            })
+
+        } catch (error) {
+            res.status(500).json({ error: INTERNAL_ERROR })
+        }
+    })
 
 
     
