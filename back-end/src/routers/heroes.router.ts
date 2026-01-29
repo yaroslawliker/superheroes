@@ -6,7 +6,8 @@ import { BUCKET_NAME } from '../config/minio.client';
 import { PrismaClient } from '@prisma/client';
 
 import { logRequest } from '../logging/request-logger';
-import { createHeroSchema, CreateHeroDto } from '../dto/create-hero.dto';
+import { createHeroSchema } from '../dto/create-hero.dto';
+import { updateHeroSchema } from '../dto/update-hero.dto';
 
 
 
@@ -149,8 +150,86 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
 
 
 
-    router.put('/', (req, res) => {
-        res.send("Hero!");
+    router.put('/:heroId', upload.array('images', 10), async (req, res) => {
+        const heroId = Number(req.params.heroId);
+
+        try {
+            
+            if (!req.body.data) return res.status(400).json(
+                { error: {
+                    code: "missing_field",
+                    message: "Missing 'data' field"
+                }}
+            );
+            
+            let payload;
+            try {
+                payload = JSON.parse(req.body.data);
+            } catch (e) {
+                return res.status(400).json({ error:{
+                    code: "invalid_json",
+                    message: "Invalid JSON" 
+                }});
+            }
+
+            const validation = updateHeroSchema.safeParse(payload);
+
+            if (!validation.success) {
+                return res.status(400).json({ error: validation.error.issues });
+            }
+            const updates = validation.data;
+
+            const currentHero = await prisma.hero.findUnique({
+                where: { id: heroId },
+                select: { images: true }
+            });
+
+            if (!currentHero) return res.status(404).json({ error: "Hero not found" });
+
+
+            const files = req.files as Express.Multer.File[];
+            const newFileNames: string[] = [];
+
+            if (files && files.length > 0) {
+                const uploadPromises = files.map(async (file) => {
+                    const fileName = `${Date.now()}-${file.originalname}`;
+                    await minio.putObject(BUCKET_NAME, fileName, file.buffer, file.size);
+                    return fileName;
+                });
+                const uploaded = await Promise.all(uploadPromises);
+                newFileNames.push(...uploaded);
+            }
+
+            if (updates.deletedImages && updates.deletedImages.length > 0) {
+                await minio.removeObjects(BUCKET_NAME, updates.deletedImages);
+            }
+
+            
+            let finalImages = currentHero.images;
+            
+            if (updates.deletedImages && updates.deletedImages.length > 0) {
+                finalImages = finalImages.filter(img => !updates.deletedImages?.includes(img));
+            }
+
+            finalImages = [...finalImages, ...newFileNames];
+            
+            const updatedHero = await prisma.hero.update({
+                where: { id: heroId },
+                data: {
+                    nickname: updates.nickname,
+                    realName: updates.realName,
+                    originDescription: updates.originDescription,
+                    superpowers: updates.superpowers,
+                    images: finalImages
+                }
+            });
+
+            res.json(updatedHero);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     });
 
 
