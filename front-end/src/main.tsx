@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import './index.css'
 import App from './App.tsx'
+import CreateHeroPage from './pages/create-hero/CreateHeroPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -11,6 +12,7 @@ const router = createBrowserRouter([
     element: <App/>,
     children: [
       { path: "/", element: <h1>Hello world</h1> },
+      { path: "/create", element: <CreateHeroPage/> }
     ]
   }
 ]);

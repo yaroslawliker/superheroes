@@ -1,0 +1,12 @@
+
+
+.gradient-box {
+    background: var(--primary-bg-gradient);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.box {
+    background-color: var(--secondary-bg-color);
+    border-radius: 5px;
+}
