@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { logRequest } from '../logging/request-logger';
 import { createHeroSchema } from '../dto/create-hero.dto';
 import { updateHeroSchema } from '../dto/update-hero.dto';
+import { MinioService } from '../services/minio.service'
 
 
 
@@ -16,7 +17,7 @@ const INTERNAL_ERROR = {
     message: "No hero with such id."
 }
 
-export default function createHeroesRouter(prisma: PrismaClient, minio: MinioClient) {
+export default function createHeroesRouter(prisma: PrismaClient, minio: MinioService) {
     
     const router = express.Router();
     const upload = multer({ storage: multer.memoryStorage() });
@@ -112,22 +113,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
             }
 
             // Saving files to minIO
-            const uploadPromises = files.map(async (file) => {
-                const fileName = `${Date.now()}-${file.originalname}`;
-                
-                await minio.putObject(
-                    BUCKET_NAME,
-                    fileName,
-                    file.buffer,
-                    file.size,
-                    { 'Content-Type': file.mimetype }
-                );
-                
-                return fileName; 
-            });
-
-            const savedFileNames = await Promise.all(uploadPromises);
-
+            const savedFileNames = await minio.saveFiles(files);
 
             // Adding the new hero to the database
             const newHero = await prisma.hero.create({
@@ -188,27 +174,20 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
 
 
             const files = req.files as Express.Multer.File[];
-            const newFileNames: string[] = [];
-
+            let newFileNames: string[] = [];
+            
             if (files && files.length > 0) {
-                const uploadPromises = files.map(async (file) => {
-                    const fileName = `${Date.now()}-${file.originalname}`;
-                    await minio.putObject(BUCKET_NAME, fileName, file.buffer, file.size);
-                    return fileName;
-                });
-                const uploaded = await Promise.all(uploadPromises);
-                newFileNames.push(...uploaded);
+                newFileNames = await minio.saveFiles(files);
             }
 
             if (updates.deletedImages && updates.deletedImages.length > 0) {
-                await minio.removeObjects(BUCKET_NAME, updates.deletedImages);
+                await minio.removeFiles(updates.deletedImages);
             }
 
-            
             let finalImages = currentHero.images;
             
             if (updates.deletedImages && updates.deletedImages.length > 0) {
-                finalImages = finalImages.filter(img => !updates.deletedImages?.includes(img));
+                finalImages = finalImages.filter(img => !updates.deletedImages.includes(img));
             }
 
             finalImages = [...finalImages, ...newFileNames];
@@ -268,7 +247,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioCli
             })
 
             if (hero.images && hero.images.length > 0) {
-                minio.removeObjects(BUCKET_NAME, hero.images)
+                minio.removeFiles(hero.images)
                 console.debug(`${hero.images.length} images were removed.`)
             }
 

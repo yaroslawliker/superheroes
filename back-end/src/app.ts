@@ -1,7 +1,8 @@
 import express from 'express'
 
 import { PrismaClient } from '@prisma/client'
-import { minioClient, initMinio } from './config/minio.client';
+import { minioClient, BUCKET_NAME } from './config/minio.client';
+import { MinioService } from './services/minio.service';
 
 import createHeroesRouter from './routers/heroes.router'
 
@@ -14,10 +15,10 @@ const port = 3000;
 
 app.use(express.json());
 
-initMinio();
+const minioService = new MinioService(minioClient, BUCKET_NAME);
 
 const prisma = new PrismaClient();
-const heroesRouter = createHeroesRouter(prisma, minioClient);
+const heroesRouter = createHeroesRouter(prisma, minioService);
 
 
 // --- Paths ---
