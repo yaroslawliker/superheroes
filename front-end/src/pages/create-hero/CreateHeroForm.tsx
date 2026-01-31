@@ -8,17 +8,28 @@ import PowersField from "../../common/form/PowersField"
 import SubmitButton from "../../common/form/SubmitButton"
 import TextAreField from "../../common/form/TextAreaField"
 import { zodResolver } from "@hookform/resolvers/zod";
+import ImagesField from "../../common/form/ImagesField";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const schema = z.object({
     nickname: z.string().min(2),
     realName: z.string().min(2),
     originDescription: z.string().max(250),
+
     superpowers: z.array(
     z.object({
         name: z.string().min(1) 
-    })
-)
-})
+    })),
+
+    images: z.array(z.instanceof(File))
+        .min(1)
+        .refine(
+            (files) => files.every(
+                file => file.size <= MAX_FILE_SIZE
+            )
+        ),
+});
 
 type FormValues = z.infer<typeof schema>;
 
@@ -75,6 +86,13 @@ export default function CreateHeroForm() {
                         control={control}
 
                     ></PowersField>
+
+                    <ImagesField
+                        name="images"
+                        control={control}
+                    />
+                        
+                
                 </div>
 
                 <SubmitButton></SubmitButton>

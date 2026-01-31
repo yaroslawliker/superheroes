@@ -12,10 +12,12 @@
   --pallette-pink: #C0259B;
   --palette-ligth-gray: #F0F2F5;
   --palette-white: white;
+  --palette-red-transp: rgba(255, 0, 0, 0.600);
 
   /* --- SEMANTICS --- */
   --primary-bg-gradient: linear-gradient(135deg, var(--palette-purple) 20%, var(--pallette-pink) 100%);
   --secondary-bg-color: var(--palette-ligth-gray);
+  --danger-bg-color-transp: var(--palette-red-transp);
 
   --color-primary: var(--palette-purple);
   --color-light: var(--palette-white);

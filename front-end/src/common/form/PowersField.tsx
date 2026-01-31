@@ -38,7 +38,7 @@ export default function PowersField<T extends FieldValues>( { name, label, contr
         }
     };
     
-    return <div>
+    return <div className="powers-field">
         <div className="field-name">{  capitalize(label) }</div>
 
         <div className="powers-input-bar">
@@ -56,19 +56,17 @@ export default function PowersField<T extends FieldValues>( { name, label, contr
         </div>
 
         <div className="powers">
-            <div className="powers">
-                {fields.map((field, index) => {
-                    const item = field as unknown as SuperpowerItem;
+            {fields.map((field, index) => {
+                const item = field as unknown as SuperpowerItem;
 
-                    return (
-                        <Power 
-                            key={item.id}
-                            text={item.name}
-                            onRemove={() => remove(index)}
-                        />
-                    );
-                })}
-            </div>
+                return (
+                    <Power 
+                        key={item.id}
+                        text={item.name}
+                        onRemove={() => remove(index)}
+                    />
+                );
+            })}
         </div>
         
     </div>
