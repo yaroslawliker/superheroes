@@ -1,5 +1,6 @@
 import { useForm, type FieldValues } from "react-hook-form"
 import { z } from "zod";
+import axios from "axios";
 
 import "../../common/common.css"
 import "../../common/form/form.css"
@@ -9,6 +10,7 @@ import SubmitButton from "../../common/form/SubmitButton"
 import TextAreField from "../../common/form/TextAreaField"
 import { zodResolver } from "@hookform/resolvers/zod";
 import ImagesField from "../../common/form/ImagesField";
+import { buildBackendUrl } from "../../common/backendClient";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -48,7 +50,40 @@ export default function CreateHeroForm() {
 
     
     async function onSubmit(data: FieldValues) {
-        console.log(data);
+        const url = buildBackendUrl("/heroes");
+
+        try {
+            const formData = new FormData();
+
+            const { images, superpowers, ...restDetails } = data;
+
+            const hero = {
+                ...restDetails,
+                superpowers: superpowers.map((s: {name: string}) => s.name)
+            };
+
+            formData.append("data", JSON.stringify(hero));
+
+            if (images && images.length > 0) {
+                images.forEach((file: File) => {
+                    formData.append("images", file);
+                })
+            }
+
+            const response = await axios.post(
+                url, 
+                formData
+            );
+
+            console.log(response);
+
+            alert("Hero had been created");
+
+        } catch (error) {
+            console.error("Error on creation:", error);
+            alert("Something went wrong, hero was not created.");
+        }
+
         reset();
     }
 
@@ -92,7 +127,6 @@ export default function CreateHeroForm() {
                         control={control}
                     />
                         
-                
                 </div>
 
                 <SubmitButton></SubmitButton>
