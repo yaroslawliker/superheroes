@@ -8,7 +8,7 @@ export default function Navbar() {
         <ul>
             <li><Link to="/">Homepage</Link></li>
             <li><Link to="/create">Create a new hero</Link></li>
-            <li><Link to="/">Heroes</Link></li>
+            <li><Link to="/catalog">Heroes</Link></li>
         </ul>
     </nav>
 
