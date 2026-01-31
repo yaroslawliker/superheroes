@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from "cors"
 
 import { PrismaClient } from '@prisma/client'
 import { minioClient, BUCKET_NAME } from './config/minio.client';
@@ -13,6 +14,7 @@ const port = 3000;
 
 // Dependency injection and components set up
 
+app.use(cors());
 app.use(express.json());
 
 const minioService = new MinioService(minioClient, BUCKET_NAME);
