@@ -92,7 +92,7 @@ export default function HeroPage() {
                     <div className="buttons">
                         <Link
                             to="edit"
-                            className="gradient-box button"
+                            className="gradient-box edit-button"
                         >
                             Edit
                         </Link>

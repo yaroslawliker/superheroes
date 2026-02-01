@@ -75,7 +75,7 @@
 }
 
 
-.button {
+.edit-button {
     width: 100%;
     border: none;
 
@@ -83,6 +83,7 @@
     justify-content: center;
 
     text-decoration: none;
+    color: var(--color-light);
 }
 
 .delete-button {
