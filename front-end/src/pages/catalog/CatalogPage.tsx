@@ -84,7 +84,7 @@ export default function CatalogPage() {
 
     const heroes = heroesData.map(
         h => 
-            <Link to={String(h.id)} className="hero-link">
+            <Link to={"/heroes/" + String(h.id)} className="hero-link">
             <div className="gradient-box gradient-size">
                 <div className="hero-item">
                     <div className="box image-box">

@@ -6,6 +6,7 @@ import './index.css'
 import App from './App.tsx'
 import CreateHeroPage from './pages/create-hero/CreateHeroPage.tsx'
 import CatalogPage from './pages/catalog/CatalogPage.tsx'
+import HeroPage from './pages/hero/HeroPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -14,7 +15,8 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <h1>Hello world</h1> },
       { path: "/create", element: <CreateHeroPage/> },
-      { path: "/catalog", element: <CatalogPage/> }
+      { path: "/catalog", element: <CatalogPage/> },
+      { path: "/heroes/:heroId", element: <HeroPage/> }
     ]
   }
 ]);

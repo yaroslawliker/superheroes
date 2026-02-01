@@ -1,0 +1,95 @@
+
+.hero-page {
+    /* padding: 50px; */
+    width: 100%;
+}
+
+.content {
+    width: 100%;
+}
+
+.content-parts {
+    width: 100%;
+
+    padding: 25px;
+
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 50px;
+}
+
+.left-part {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.main-info {
+    width: 100%;
+    display: flex;
+    gap: 10px
+}
+
+.main-image {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 3 / 4;
+    
+    border: 2px solid var(--color-primary);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+.names {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.info ul {
+    margin-left: 50px;
+}
+
+.right-part {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    gap: 25px
+    
+}
+
+
+.button {
+    width: 100%;
+    border: none;
+
+    display: flex;
+    justify-content: center;
+
+    text-decoration: none;
+}
+
+.delete-button {
+    border-radius: 10px;
+    width: 100%;
+    border: none;
+    background-color: rgb(175, 0, 0);
+    color: var(--color-light);
+}
+
