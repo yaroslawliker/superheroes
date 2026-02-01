@@ -120,7 +120,7 @@ export default function EditHeroPage() {
 
             if (images && images.length > 0) {
                 const updatedStringImages = images.filter(
-                    (i: (File | string)) => i instanceof string 
+                    (i: (File | string)) => typeof i === 'string'
                 );
 
                 for (const heroImage of heroImages) {
@@ -129,8 +129,7 @@ export default function EditHeroPage() {
                         hero.deletedImages.push(heroImage);
                     }
                 }
-
-                console.log("All images:", images);
+                
 
                 images.forEach((file: (File | string)) => {
                     if (file instanceof File) {
