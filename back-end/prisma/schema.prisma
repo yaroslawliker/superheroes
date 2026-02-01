@@ -19,6 +19,7 @@ model Hero {
   nickname String
   realName String
   originDescription String
+  catchPhrase String @default("I am a cool superhero")
   
   images String[]
   superpowers String[]

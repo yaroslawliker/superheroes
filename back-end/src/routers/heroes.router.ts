@@ -145,6 +145,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
                     nickname: validHeroData.nickname,
                     realName: validHeroData.realName,
                     originDescription: validHeroData.originDescription,
+                    catchPhrase: validHeroData.catchPhrase,
                     images: savedFileNames,
                     superpowers: validHeroData.superpowers
                 }
@@ -201,6 +202,11 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
             const deletedImageCount = updates.deletedImages ? updates.deletedImages.length : 0;
             const oldImageCount = currentHero.images.length;
 
+            // console.log(updates.deletedImages);
+            // console.log("New", newImageCount);
+            // console.log("Deleted", deletedImageCount);
+            // console.log("Old", oldImageCount);
+
             if (oldImageCount - deletedImageCount + newImageCount <= 0) {
                 return res.status(400).json({ error: ERRORS.NO_IMAGES });
             }
@@ -227,6 +233,7 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
                     nickname: updates.nickname,
                     realName: updates.realName,
                     originDescription: updates.originDescription,
+                    catchPhrase: updates.catchPhrase,
                     superpowers: updates.superpowers,
                     images: finalImages
                 }
