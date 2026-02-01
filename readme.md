@@ -7,7 +7,7 @@ There are 4 simple steps to run the program:
 ## Dummy data
 To have some data in the database, after running the docker and initializing the database but before running the back-end you may write `cd back-end` and `npm run script`.
 This step is optional.
-CAUTION: this will erase the existing postgres data, and also there is a memory leak in minio, so the volume should be deleted manualy, if the script is run multiple times.
+CAUTION: this will erase the existing postgres data and related minio files!
 
 ## Assumptions
 - Every superhero must have at least one image to be shown on list page proparly

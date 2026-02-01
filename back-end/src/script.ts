@@ -8,11 +8,23 @@ import { MinioService } from "./services/minio.service";
 const prisma = new PrismaClient();
 const minio = new MinioService(minioClient, BUCKET_NAME);
 
-async function runScript() {
-    const result1 = await prisma.hero.deleteMany();
-    console.log(result1);
+async function runScript() {   
+    // Getting all images of the heroes
+    const heroes = await prisma.hero.findMany({
+        select: {
+            images: true
+        }
+    })
+    const filenames = heroes.map(h => h.images);    
+    const removeResponse = await minio.removeFiles(filenames.flat());
+    console.log("Removed files from minio", removeResponse.length);
 
-    const result = await populateDb(prisma, minio, 33);
+    const result1 = await prisma.hero.deleteMany();
+    console.log("Removed heroes: ", result1);
+
+
+
+    const result = await populateDb(prisma, minio, 10);
     console.log("Database was populated.", result);
 }
 

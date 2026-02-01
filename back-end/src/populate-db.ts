@@ -38,15 +38,17 @@ function buildSuperpowers() {
     return superpowers;
 }
 
-export async function populateDb(prisma: PrismaClient, minio: MinioService, amount: number) {
-    const heroes = [];   
-
+async function buildFiles(minio: MinioService) {
     const file1 = await readSingleFile('superhero-main.png');
     const file2 = await readSingleFile('superhero.png');
 
-    const filenames = await minio.saveFiles([file1, file2]);
+    return await minio.saveFiles([file1, file2]);
+}
 
+export async function populateDb(prisma: PrismaClient, minio: MinioService, amount: number) {
+    const heroes = [];   
     for (let i=0; i < amount; i++) {
+        const filenames = await buildFiles(minio);
         heroes.push({
             nickname: buildNickname(),
             realName: buildName(),
