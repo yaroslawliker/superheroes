@@ -18,7 +18,7 @@ const schema = z.object({
     nickname: z.string().min(2),
     realName: z.string().min(2),
     originDescription: z.string().max(250),
-
+    catchPhrase: z.string().max(200),
     superpowers: z.array(
     z.object({
         name: z.string().min(1) 
@@ -113,6 +113,12 @@ export default function CreateHeroForm() {
                         label="origin description"
                         name="originDescription"
                         error={errors.originDescription?.message}
+                    ></TextAreField>
+                    <TextAreField 
+                        register={register}
+                        label="catch phrase"
+                        name="catchPhrase"
+                        error={errors.catchPhrase?.message}
                     ></TextAreField>
 
                     <PowersField 

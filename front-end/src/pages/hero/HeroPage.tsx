@@ -12,6 +12,7 @@ interface HeroData{
     nickname: string;
     realName: string;
     originDescription: string;
+    catchPhrase: string;
     superpowers: string[];
     images: string[];
 }
@@ -82,6 +83,7 @@ export default function HeroPage() {
                                 <div className="name"><b>Nickname:</b> {hero?.nickname}</div>
                                 <div className="name"><b>Real name:</b> {hero?.realName}</div>
                                 <div className="name"><b>Origin description:</b><br/> {hero?.originDescription}</div>
+                                <div className="name"><b>Catch phrase:</b><br/> {hero?.catchPhrase}</div>
                                 <div className="name"><b>Superpowers:</b></div>
                                 <ul>
                                     {superpowers}

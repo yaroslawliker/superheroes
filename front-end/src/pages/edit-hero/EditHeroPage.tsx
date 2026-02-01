@@ -20,6 +20,7 @@ const schema = z.object({
     nickname: z.string().min(2),
     realName: z.string().min(2),
     originDescription: z.string().max(250),
+    catchPhrase: z.string().max(200),
 
     superpowers: z.array(
     z.object({
@@ -49,6 +50,7 @@ interface HeroData{
     nickname: string;
     realName: string;
     originDescription: string;
+    catchPhrase: string;
     superpowers: string[];
     images: string[];
 }
@@ -82,6 +84,7 @@ export default function EditHeroPage() {
                     nickname: data.nickname,
                     realName: data.realName,
                     originDescription: data.originDescription,
+                    catchPhrase: data.catchPhrase,
                     superpowers: data.superpowers.map(s => ({ name: s })),
                     images: data.images
                 }
@@ -180,6 +183,12 @@ export default function EditHeroPage() {
                         label="origin description"
                         name="originDescription"
                         error={errors.originDescription?.message}
+                    ></TextAreField>
+                    <TextAreField 
+                        register={register}
+                        label="catch phrase"
+                        name="catchPhrase"
+                        error={errors.catchPhrase?.message}
                     ></TextAreField>
 
                     <PowersField 
