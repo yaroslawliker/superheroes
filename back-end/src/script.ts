@@ -16,15 +16,15 @@ async function runScript() {
         }
     })
     const filenames = heroes.map(h => h.images);    
-    const removeResponse = await minio.removeFiles(filenames.flat());
-    console.log("Removed files from minio", removeResponse.length);
+    await minio.removeFiles(filenames.flat());
+    console.log("Removed files from minio");
 
     const result1 = await prisma.hero.deleteMany();
     console.log("Removed heroes: ", result1);
 
 
 
-    const result = await populateDb(prisma, minio, 10);
+    const result = await populateDb(prisma, minio, 33);
     console.log("Database was populated.", result);
 }
 
