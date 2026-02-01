@@ -48,14 +48,13 @@ async function buildFiles(minio: MinioService) {
 export async function populateDb(prisma: PrismaClient, minio: MinioService, amount: number) {
     const heroes = [];   
     for (let i=0; i < amount; i++) {
-        const filenames = await buildFiles(minio);
         heroes.push({
             nickname: buildNickname(),
             realName: buildName(),
             originDescription: buildOrigin(),
             catchPhrase: "I am a superhero!",
             superpowers: buildSuperpowers(),
-            images: [filenames[0], filenames[1], filenames[1], filenames[1]]
+            images: await buildFiles(minio)
         })
     }
     
