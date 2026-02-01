@@ -38,7 +38,7 @@ export default function HeroPage() {
         }
 
         fetchData();
-    }, [])
+    }, [heroId])
 
     const superpowers = hero?.superpowers.map(
         s => <li>{s}</li>

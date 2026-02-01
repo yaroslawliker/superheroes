@@ -1,5 +1,5 @@
 import { useForm, type FieldValues } from "react-hook-form"
-import { z } from "zod";
+import { string, z } from "zod";
 import axios from "axios";
 
 import "../../common/common.css"
@@ -11,6 +11,8 @@ import TextAreField from "../../common/form/TextAreaField"
 import { zodResolver } from "@hookform/resolvers/zod";
 import ImagesField from "../../common/form/ImagesField";
 import { buildBackendUrl } from "../../common/backendClient";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -24,19 +26,34 @@ const schema = z.object({
         name: z.string().min(1) 
     })),
 
-    images: z.array(z.instanceof(File))
+    images: z.array(
+        z.union([
+            z.instanceof(File),
+            z.string()
+        ])
+    )
         .min(1)
         .refine(
             (files) => files.every(
-                file => file.size <= MAX_FILE_SIZE
+                file => file instanceof File 
+                ? file.size <= MAX_FILE_SIZE 
+                : true
             )
         ),
 });
 
 type FormValues = z.infer<typeof schema>;
 
+interface HeroData{
+    id: number;
+    nickname: string;
+    realName: string;
+    originDescription: string;
+    superpowers: string[];
+    images: string[];
+}
 
-export default function CreateHeroForm() {
+export default function EditHeroPage() {
 
     const { 
         register,
@@ -48,9 +65,43 @@ export default function CreateHeroForm() {
         resolver: zodResolver(schema)
      });
 
-    
+    const { heroId } = useParams();
+    const [ heroImages, setHeroImages ] = useState<string[]>([]);
+
+    useEffect(() => {
+
+        async function fetchData() {
+            const url = buildBackendUrl("/heroes/" + heroId);
+
+            try {
+                const response = await axios.get(url);
+
+                const data = response.data as HeroData;
+
+                const formData = {
+                    nickname: data.nickname,
+                    realName: data.realName,
+                    originDescription: data.originDescription,
+                    superpowers: data.superpowers.map(s => ({ name: s })),
+                    images: data.images
+                }
+                
+                reset(formData);
+                setHeroImages(data.images);
+                      
+                
+            } catch (error) {
+                console.log("Errro:", error);
+            }
+        }
+
+        fetchData();
+    }, [heroId, reset])
+
+
+
     async function onSubmit(data: FieldValues) {
-        const url = buildBackendUrl("/heroes");
+        const url = buildBackendUrl(`/heroes/${heroId}`);
 
         try {
             const formData = new FormData();
@@ -59,32 +110,48 @@ export default function CreateHeroForm() {
 
             const hero = {
                 ...restDetails,
-                superpowers: superpowers.map((s: {name: string}) => s.name)
+                superpowers: superpowers.map((s: {name: string}) => s.name),
+                deletedImages: [] as string[]
             };
 
-            formData.append("data", JSON.stringify(hero));
 
             if (images && images.length > 0) {
-                images.forEach((file: File) => {
-                    formData.append("images", file);
+                const updatedStringImages = images.filter(
+                    (i: (File | string)) => i instanceof string 
+                );
+
+                for (const heroImage of heroImages) {
+                    if (!updatedStringImages.includes(heroImage))
+                    {
+                        hero.deletedImages.push(heroImage);
+                    }
+                }
+
+                console.log("All images:", images);
+
+                images.forEach((file: (File | string)) => {
+                    if (file instanceof File) {
+                        formData.append("images", file);
+                    }
                 })
             }
 
-            const response = await axios.post(
+            formData.append("data", JSON.stringify(hero));
+
+
+            const response = await axios.put(
                 url, 
                 formData
             );
 
             console.log(response);
 
-            alert("Hero had been created");
+            alert("Hero had been updated");
 
         } catch (error) {
-            console.error("Error on creation:", error);
-            alert("Something went wrong, hero was not created.");
+            console.error("Error on updated:", error);
+            alert("Something went wrong, hero was not updated.");
         }
-
-        reset();
     }
 
     return <form onSubmit={handleSubmit(onSubmit)} className="gradient-box">
@@ -92,7 +159,7 @@ export default function CreateHeroForm() {
             <div className="form-content">
 
                 <div className="title">
-                    <h3>Create a superhero</h3>
+                    <h3>Edit the superhero</h3>
                 </div>
 
                 <div className="fields">
@@ -129,7 +196,7 @@ export default function CreateHeroForm() {
                         
                 </div>
 
-                <SubmitButton>Create</SubmitButton>
+                <SubmitButton>Save</SubmitButton>
 
             </div>
         </div>
