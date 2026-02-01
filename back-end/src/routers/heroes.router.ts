@@ -196,6 +196,14 @@ export default function createHeroesRouter(prisma: PrismaClient, minio: MinioSer
 
             const files = req.files as Express.Multer.File[];
             let newFileNames: string[] = [];
+
+            const newImageCount = files ? files.length : 0;
+            const deletedImageCount = updates.deletedImages ? updates.deletedImages.length : 0;
+            const oldImageCount = currentHero.images.length;
+
+            if (oldImageCount - deletedImageCount + newImageCount <= 0) {
+                return res.status(400).json({ error: ERRORS.NO_IMAGES });
+            }
             
             if (files && files.length > 0) {
                 newFileNames = await minio.saveFiles(files);
