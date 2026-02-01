@@ -1,8 +1,8 @@
 ## Deploy
 There are 3 simple steps to run the program:
 1. Docker: use `docker compose up` to run minio (image storage) and postgres database.
-2. Back-end: from separate terminal navigate to `cd back-end` and run `npm run dev`
-3. Front-end: from separate terminal navigate to `cd front-end` and run `npm run dev`
+2. Back-end: from separate terminal navigate to `cd back-end`, rename the `example.env` into `.env` and run `npm run dev`
+3. Front-end: from separate terminal navigate to `cd front-end`, rename the `example.env` into `.env` and run `npm run dev`
 
 ## Dummy data
 To have some data in the database, after running the docker but before running the back-end you may write `cd back-end` and `npm run script`.
